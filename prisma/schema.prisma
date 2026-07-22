@@ -1,0 +1,293 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// 1. تحديد الصلاحيات المتاحة في النظام
+enum Role {
+  ADMIN
+  RESTAURANT_OWNER
+  HOTEL_OWNER
+  CAR_RENTAL_OWNER
+  CUSTOMER
+}
+
+// 2. جدول المستخدمين
+model User {
+  id       String  @id @default(uuid())
+  email    String  @unique
+  password String
+  name     String
+  phone    String?
+  role     Role    @default(CUSTOMER)
+
+  // علاقات
+  hotels      Hotel[]
+  carOffice   CarOffice?
+  restaurants Restaurant[]
+  bookings    Booking[]
+
+  // Timestamps
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  reviews   Review[]
+  favorites Favorite[]
+}
+
+// 3. جدول الفنادق
+model Hotel {
+  id            String   @id @default(uuid())
+  name          String
+  description   String
+  location      String
+  lat           Float
+  lng           Float
+  phone         String
+  images        String[]
+  pricePerNight Float
+  isAvailable   Boolean  @default(true)
+  avgRating     Float    @default(0.0)
+
+  // علاقات
+  ownerId String
+  owner   User   @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+
+  bookings Booking[]
+
+  // Timestamps
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  reviews   Review[]
+  favorites Favorite[]
+}
+
+// 4. جدول مكاتب السيارات
+model CarOffice {
+  id          String  @id @default(uuid())
+  name        String
+  description String?
+  location    String
+  lat         Float?
+  lng         Float?
+  phone       String
+
+  // علاقات
+  ownerId String @unique
+  owner   User   @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+
+  cars      Car[]
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// 5. جدول السيارات
+enum CarType {
+  SEDAN
+  SUV
+  HATCHBACK
+  CONVERTIBLE
+  COUPE
+  MINIVAN
+  PICKUP_TRUCK
+  STATION_WAGON
+}
+
+model Car {
+  id          String   @id @default(uuid())
+  name        String
+  type        CarType
+  color       String
+  pricePerDay Float
+  images      String[]
+  isAvailable Boolean  @default(true)
+  avgRating   Float    @default(0.0)
+
+  // علاقات
+  officeId String
+  office   CarOffice @relation(fields: [officeId], references: [id], onDelete: Cascade)
+
+  bookings Booking[]
+
+  // Timestamps
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  reviews   Review[]
+  favorites Favorite[]
+}
+
+// 6. جدول المطاعم
+model Restaurant {
+  id          String   @id @default(uuid())
+  name        String
+  description String
+  location    String
+  lat         Float
+  lng         Float
+  phone       String
+  images      String[]
+  isAvailable Boolean  @default(true)
+  avgRating   Float    @default(0.0)
+
+  // علاقات
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  bookings Booking[]
+
+  // Timestamps
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  reviews   Review[]
+  favorites Favorite[]
+}
+
+// 7. جدول المعالم السياحية
+model Landmark {
+  id          String   @id @default(uuid())
+  name        String
+  description String
+  location    String
+  lat         Float
+  lng         Float
+  images      String[]
+  avgRating   Float    @default(0.0)
+
+  // Timestamps
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  favorites Favorite[]
+  reviews   Review[]
+}
+
+// 8. جدول الفعاليات والمهرجانات
+model Event {
+  id          String   @id @default(uuid())
+  name        String
+  type        String
+  description String
+  startDate   DateTime
+  endDate     DateTime
+  time        String?
+  price       Float    @default(0.0)
+  location    String
+  lat         Float
+  lng         Float
+  images      String[]
+
+  // Timestamps
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  favorites Favorite[]
+}
+
+// 9. جدول الحجوزات
+enum BookingStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  CANCELLED
+}
+
+enum ItemType {
+  HOTEL
+  CAR
+  RESTAURANT
+  EVENT
+}
+
+model Booking {
+  id          String        @id @default(uuid())
+  itemType    ItemType
+  status      BookingStatus @default(PENDING)
+  startDate   DateTime?
+  endDate     DateTime?
+  bookingTime String?
+
+  totalPrice Float
+  paymentId  String?
+  isPaid     Boolean @default(false)
+
+  // علاقات
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  hotelId String?
+  hotel   Hotel?  @relation(fields: [hotelId], references: [id], onDelete: SetNull)
+
+  carId String?
+  car   Car?    @relation(fields: [carId], references: [id], onDelete: SetNull)
+
+  restaurantId String?
+  restaurant   Restaurant? @relation(fields: [restaurantId], references: [id], onDelete: SetNull)
+
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// 10. جدول التعليقات والتقييمات
+model Review {
+  id      String  @id @default(uuid())
+  rating  Int
+  comment String?
+
+  // علاقات
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  hotelId String?
+  hotel   Hotel?  @relation(fields: [hotelId], references: [id], onDelete: Cascade)
+
+  carId String?
+  car   Car?    @relation(fields: [carId], references: [id], onDelete: Cascade)
+
+  restaurantId String?
+  restaurant   Restaurant? @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+
+  landmarkId String?
+  landmark   Landmark? @relation(fields: [landmarkId], references: [id], onDelete: Cascade)
+
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // قيود عدم التكرار (Compound Unique Constraints)
+  @@unique([userId, hotelId])
+  @@unique([userId, carId])
+  @@unique([userId, restaurantId])
+  @@unique([userId, landmarkId])
+}
+
+model Favorite {
+  id String @id @default(uuid())
+
+  // -- العلاقات --
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  hotelId String?
+  hotel   Hotel?  @relation(fields: [hotelId], references: [id], onDelete: Cascade)
+
+  carId String?
+  car   Car?    @relation(fields: [carId], references: [id], onDelete: Cascade)
+
+  restaurantId String?
+  restaurant   Restaurant? @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+
+  landmarkId String?
+  landmark   Landmark? @relation(fields: [landmarkId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  event     Event?   @relation(fields: [eventId], references: [id])
+  eventId   String?
+
+  // قيود عدم التكرار (Compound Unique Constraints)
+  @@unique([userId, hotelId])
+  @@unique([userId, carId])
+  @@unique([userId, restaurantId])
+  @@unique([userId, landmarkId])
+}
