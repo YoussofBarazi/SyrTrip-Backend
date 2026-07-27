@@ -1,8 +1,5 @@
 import { type Response } from 'express';
 import { z } from 'zod';
-import { PrismaClient } from '@prisma/client';
-import { Pool } from 'pg';
-import { PrismaPg } from '@prisma/adapter-pg';
 import { createHotelSchema, updateHotelSchema } from '../schemas/hotel.schema.js';
 import { prisma } from '../utils/prisma.js';
 import type { AuthRequest } from '../middlewares/auth.middleware.js';
