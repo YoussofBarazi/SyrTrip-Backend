@@ -15,7 +15,7 @@ router.get('/', getHotels);
 router.get('/:id', getHotelById);
 
 // Protected Routes (HOTEL_OWNER & ADMIN only)
-router.post('/', authenticate, authorize(['HOTEL_OWNER', 'ADMIN']), createHotel);
+router.post('/', authenticate, authorize(['ADMIN']), createHotel);
 router.put('/:id', authenticate, authorize(['HOTEL_OWNER', 'ADMIN']), updateHotel);
 router.delete('/:id', authenticate, authorize(['HOTEL_OWNER', 'ADMIN']), deleteHotel);
 

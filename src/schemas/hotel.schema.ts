@@ -13,4 +13,4 @@ export const createHotelSchema = z.object({
   isAvailable: z.boolean().optional().default(true)
 })
 
-export const updateHotelSchema = createHotelSchema.partial();
+export const updateHotelSchema = createHotelSchema.omit({ ownerEmail: true }).partial();

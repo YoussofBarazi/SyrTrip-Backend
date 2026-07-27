@@ -19,19 +19,34 @@ export const createHotel = async (req: AuthRequest, res: Response): Promise<void
       return 
     }
 
-    const hotel = await prisma.hotel.create({
-      data: {
-        name: validatedData.name,
-        description: validatedData.description || null,
-        location: validatedData.location,
-        lat: validatedData.lat,
-        lng: validatedData.lng,
-        phone: validatedData.phone,
-        images: validatedData.images,
-        pricePerNight: validatedData.pricePerNight,
-        isAvailable: validatedData.isAvailable,
-        ownerId: owner.id
+    if (owner.role !== 'CUSTOMER' && owner.role !== 'HOTEL_OWNER') {
+      res.status(409).json({ message: `Conflict: Not allowed, this owner has ${owner.role} role` })
+      return
+    }
+
+    const hotel = await prisma.$transaction(async (tx) => {
+
+      if (owner.role === 'CUSTOMER') {
+        await tx.user.update({
+          where: { id: owner.id },
+          data: { role: 'HOTEL_OWNER' }
+        });
       }
+
+      return await tx.hotel.create({
+        data: {
+          name: validatedData.name,
+          description: validatedData.description || null, // Prisma accepts null
+          location: validatedData.location,
+          lat: validatedData.lat,
+          lng: validatedData.lng,
+          phone: validatedData.phone,
+          images: validatedData.images,
+          pricePerNight: validatedData.pricePerNight,
+          isAvailable: validatedData.isAvailable,
+          ownerId: owner.id
+        }
+      })
     })
 
     res.status(201).json({
@@ -147,20 +162,13 @@ export const updateHotel = async (req: AuthRequest, res: Response): Promise<void
     }
 
     const validatedData = updateHotelSchema.parse(req.body)
+    const dataToUpdate = Object.fromEntries(
+      Object.entries(validatedData).filter(([__dirname, value]) => value !== undefined)
+    )
 
     const updatedHotel = await prisma.hotel.update({
       where: { id },
-      data: {
-        ...(validatedData.name && { name: validatedData.name}),
-        ...(validatedData.description && { description: validatedData.description}),
-        ...(validatedData.images && { images: validatedData.images}),
-        ...(validatedData.isAvailable && { isAvailable: validatedData.isAvailable}),
-        ...(validatedData.lat && { lat: validatedData.lat}),
-        ...(validatedData.lng && { lng: validatedData.lng}),
-        ...(validatedData.location && { location: validatedData.location}),
-        ...(validatedData.phone && { phone: validatedData.phone}),
-        ...(validatedData.pricePerNight && { pricePerNight: validatedData.pricePerNight}),
-      }
+      data: dataToUpdate
     })
 
     res.status(200).json({
