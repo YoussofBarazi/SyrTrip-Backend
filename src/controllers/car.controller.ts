@@ -108,7 +108,7 @@ export const getCarOffices = async (req: AuthRequest, res: Response): Promise<vo
 // 3. Delete a Car Office (Admin or Owner)
 export const deleteCarOffice = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    const officeId = req.params.carId as string
+    const officeId = req.params.officeId as string
     const userId = req.user!.userId
     const userRole = req.user!.role
 
@@ -129,6 +129,7 @@ export const deleteCarOffice = async (req: AuthRequest, res: Response): Promise<
     await prisma.carOffice.delete({ where: { id: officeId } })
     res.status(200).json({ message: 'Car Office deleted successfully' })
   } catch (error: any) {
+    console.log(error)
     res.status(500).json({ message: 'Internal server error', error: error.message });
   }
 }
@@ -184,7 +185,7 @@ export const updateCarOffice = async (req: AuthRequest, res: Response): Promise<
 
     res.status(200).json({
       message: 'Office Car updated successfully',
-      carOffice: updateCarOffice
+      carOffice: updatedOffice
     })
   } catch (error: any) {
     if (error instanceof z.ZodError) {
