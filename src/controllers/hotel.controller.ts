@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { createHotelSchema, updateHotelSchema } from '../schemas/hotel.schema.js';
 import { prisma } from '../utils/prisma.js';
 import type { AuthRequest } from '../middlewares/auth.middleware.js';
+import { removeNull } from '../utils/helpers.js';
 
 // 1. Create a new Hotel (ADMIN)
 export const createHotel = async (req: AuthRequest, res: Response): Promise<void> => {
@@ -162,9 +163,7 @@ export const updateHotel = async (req: AuthRequest, res: Response): Promise<void
     }
 
     const validatedData = updateHotelSchema.parse(req.body)
-    const dataToUpdate = Object.fromEntries(
-      Object.entries(validatedData).filter(([__dirname, value]) => value !== undefined)
-    )
+    const dataToUpdate = removeNull(validatedData)
 
     const updatedHotel = await prisma.hotel.update({
       where: { id },
