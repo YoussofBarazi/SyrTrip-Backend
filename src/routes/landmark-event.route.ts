@@ -17,16 +17,16 @@ const router = Router();
 
 // --- Landmarks Routes ---
 router.get('/landmarks', getLandmarks);
-router.get('/landmarks/:id', getLandmarkById);
+router.get('/landmarks/:landmarkId', getLandmarkById);
 router.post('/landmarks', authenticate, authorize(['ADMIN']), createLandmark);
-router.put('/landmarks/:id', authenticate, authorize(['ADMIN']), updateLandmark);
-router.delete('/landmarks/:id', authenticate, authorize(['ADMIN']), deleteLandmark);
+router.put('/landmarks/:landmarkId', authenticate, authorize(['ADMIN']), updateLandmark);
+router.delete('/landmarks/:landmarkId', authenticate, authorize(['ADMIN']), deleteLandmark);
 
 // --- Events Routes ---
 router.get('/events', getEvents);
-router.get('/events/:id', getEventById);
+router.get('/events/:eventId', getEventById);
 router.post('/events', authenticate, authorize(['ADMIN']), createEvent);
-router.put('/events/:id', authenticate, authorize(['ADMIN']), updateEvent);
-router.delete('/events/:id', authenticate, authorize(['ADMIN']), deleteEvent);
+router.put('/events/:eventId', authenticate, authorize(['ADMIN']), updateEvent);
+router.delete('/events/:eventId', authenticate, authorize(['ADMIN']), deleteEvent);
 
 export default router;
