@@ -5,6 +5,7 @@ import hotelRoutes from './routes/hotel.route.js'
 import carRoutes from './routes/car.route.js';
 import carOfficeRoutes from './routes/carOffice.route.js';
 import landmarkEventRoutes from './routes/landmark-event.route.js';
+import restaurantRoutes from './routes/restaurnat.route.js';
 
 const app = express();
 
@@ -25,6 +26,9 @@ app.use('/api/offices', carOfficeRoutes);
 
 // Landmark and Event Endpoints
 app.use('/api', landmarkEventRoutes);
+
+// Restaurant Endpoints
+app.use('/api/restaurants', restaurantRoutes);
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
