@@ -190,7 +190,7 @@ export const updateBookingStatus = async (req: AuthRequest, res: Response): Prom
     }
 
     // Customers can only change status to CANCELLED
-    if (isCustomer && validatedData.status !== 'CANCELLED') {
+    if (isCustomer && validatedData.status === 'CANCELLED') {
       res.status(403).json({ message: 'Customers can only cancel their own bookings' })
       return
     }
