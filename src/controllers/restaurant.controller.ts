@@ -44,7 +44,7 @@ export const createRestaurant = async (req: AuthRequest, res: Response): Promise
           phone: validatedData.phone,
           images: validatedData.images,
           isAvailable: validatedData.isAvailable,
-          userId: owner.id, // Relation uses userId in your schema
+          ownerId: owner.id,
         },
       });
     });
@@ -86,7 +86,7 @@ export const getRestaurants = async (req: AuthRequest, res: Response): Promise<v
         take: limit,
         orderBy: { createdAt: 'desc' },
         include: {
-          user: {
+          owner: {
             select: { id: true, name: true, email: true, phone: true },
           },
         },
@@ -155,7 +155,7 @@ export const updateRestaurant = async (req: AuthRequest, res: Response): Promise
     }
 
     // Ownership check (using userId)
-    if (restaurant.userId !== userId && userRole !== 'ADMIN') {
+    if (restaurant.ownerId !== userId && userRole !== 'ADMIN') {
       res.status(403).json({ message: 'Forbidden: You do not own this restaurant' });
       return;
     }
@@ -198,7 +198,7 @@ export const deleteRestaurant = async (req: AuthRequest, res: Response): Promise
       return;
     }
 
-    if (restaurant.userId !== userId && userRole !== 'ADMIN') {
+    if (restaurant.ownerId !== userId && userRole !== 'ADMIN') {
       res.status(403).json({ message: 'Forbidden: You do not own this restaurant' });
       return;
     }

@@ -133,8 +133,8 @@ model Restaurant {
   avgRating   Float    @default(0.0)
 
   // علاقات
-  userId String
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  ownerId String
+  owner   User   @relation(fields: [ownerId], references: [id], onDelete: Cascade)
 
   bookings Booking[]
 
