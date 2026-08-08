@@ -14,6 +14,6 @@ router.use(authenticate); // All booking routes require authentication
 router.post('/', createBooking);
 router.get('/my-bookings', getMyBookings);
 router.get('/owner-bookings', getOwnerBookings);
-router.patch('/:id/status', updateBookingStatus);
+router.patch('/:bookingId/status', updateBookingStatus);
 
 export default router;
