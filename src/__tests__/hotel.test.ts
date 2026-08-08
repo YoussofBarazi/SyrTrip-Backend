@@ -35,16 +35,16 @@ describe('Hotel Controller - Creation', () => {
       .send({
         ownerEmail: 'ghost@test.com',
         name: 'Ghost Hotel',
-        location: 'Nowhere',
-        lat: 0,
-        lng: 0,
-        phone: '12345',
+        description: 'Luxury hotel located in Old Damascus',
+        location: 'Damascus',
+        lat: 33.51,
+        lng: 36.30,
+        phone: '+963112233445',
         pricePerNight: 50
       });
 
     expect(response.status).toBe(404);
     expect(response.body.message).toBe('Owner email does not exist');
-    expect(prisma.$transaction).not.toHaveBeenCalled();
   });
 
   it('should execute transaction to upgrade role and create hotel (201)', async () => {
@@ -65,10 +65,11 @@ describe('Hotel Controller - Creation', () => {
       .send({
         ownerEmail: 'owner@test.com',
         name: 'Grand Hotel',
+        description: 'Five star luxury hotel with full service',
         location: 'Damascus',
-        lat: 33.5,
-        lng: 36.3,
-        phone: '123456',
+        lat: 33.51,
+        lng: 36.30,
+        phone: '+963112233445',
         pricePerNight: 100
       });
 

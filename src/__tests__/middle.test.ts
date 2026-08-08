@@ -1,11 +1,11 @@
 import request from 'supertest';
-import { describe, it, expect, vi } from 'vitest';
-import express, { type Request, type Response } from 'express';
+import { describe, it, expect } from 'vitest';
+import express, { type Response } from 'express';
 import jwt from 'jsonwebtoken';
 import { authenticate, authorize, type AuthRequest } from '../middlewares/auth.middleware.js';
 
 const MOCK_SECRET = 'test-secret';
-process.env.JWT_SECRET = MOCK_SECRET;
+process.env.JWT_SECRET = MOCK_SECRET; // Set environment variable before generating test tokens
 
 const app = express();
 app.get(
