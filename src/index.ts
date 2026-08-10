@@ -9,6 +9,7 @@ import restaurantRoutes from './routes/restaurnat.route.js';
 import bookingRoutes from './routes/booking.route.js';
 import userRoutes from './routes/user.route.js';
 import uploadRoutes from './routes/upload.route.js';
+import interactionRoutes from './routes/interaction.route.js';
 
 const app = express();
 
@@ -41,6 +42,9 @@ app.use('/api/users', userRoutes);
 
 // Upload Endpoints
 app.use('/api/upload', uploadRoutes);
+
+// Review and Favorite Endpoints
+app.use('/api/interactions', interactionRoutes);
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
