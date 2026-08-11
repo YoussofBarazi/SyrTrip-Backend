@@ -10,6 +10,7 @@ import bookingRoutes from './routes/booking.route.js';
 import userRoutes from './routes/user.route.js';
 import uploadRoutes from './routes/upload.route.js';
 import interactionRoutes from './routes/interaction.route.js';
+import notificationRoutes from './routes/notification.route.js';
 
 const app = express();
 
@@ -45,6 +46,9 @@ app.use('/api/upload', uploadRoutes);
 
 // Review and Favorite Endpoints
 app.use('/api/interactions', interactionRoutes);
+
+// Notification Endpoints
+app.use('/api/notifications', notificationRoutes);
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {

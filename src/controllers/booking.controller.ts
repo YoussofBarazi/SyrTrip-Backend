@@ -3,6 +3,8 @@ import { z } from 'zod'
 import { type AuthRequest } from '../middlewares/auth.middleware.js'
 import { prisma } from '../utils/prisma.js'
 import { createBookingSchema, updateBookingStatusSchema } from '../schemas/booking.schema.js'
+import { sendPushNotification } from '../utils/firebase.js';
+import { toArabicBookingStatus, toArabicItemType } from '../utils/helpers.js'
 
 // 1. Create a Booking (Customer)
 export const createBooking = async (req: AuthRequest, res: Response): Promise<void> => {
@@ -12,13 +14,15 @@ export const createBooking = async (req: AuthRequest, res: Response): Promise<vo
 
     let totalPrice = 0
 
+    let hotel, car, restaurant
+
     if (validatedData.itemType === 'HOTEL') {
       if (!validatedData.hotelId || !validatedData.endDate || !validatedData.startDate) {
         res.status(400).json({ message: 'Hotel ID, start date, and end date are required for hotel bookings' })
         return 
       }
 
-      const hotel = await prisma.hotel.findUnique({
+      hotel = await prisma.hotel.findUnique({
         where: { id: validatedData.hotelId },
       })
 
@@ -42,8 +46,9 @@ export const createBooking = async (req: AuthRequest, res: Response): Promise<vo
         return
       }
 
-      const car = await prisma.car.findUnique({
+      car = await prisma.car.findUnique({
         where: { id: validatedData.carId },
+        include: { office: true }
       })
 
       if (!car || !car.isAvailable) {
@@ -66,7 +71,7 @@ export const createBooking = async (req: AuthRequest, res: Response): Promise<vo
         return
       }
 
-      const restaurant = await prisma.restaurant.findUnique({
+      restaurant = await prisma.restaurant.findUnique({
         where: { id: validatedData.restaurantId },
       })
 
@@ -91,6 +96,35 @@ export const createBooking = async (req: AuthRequest, res: Response): Promise<vo
       }
     })
 
+    // Trigger Notification for Owners
+    let targetOwnerId: string | undefined;
+
+    if (validatedData.itemType === 'HOTEL' && hotel) {
+      targetOwnerId = hotel.ownerId
+    } else if (validatedData.itemType === 'CAR' && car) {
+      targetOwnerId = car.office.ownerId
+    } else if (validatedData.itemType === 'RESTAURANT' && restaurant) {
+      targetOwnerId = restaurant.ownerId
+    }
+
+    if (targetOwnerId) {
+      // 1. Save to Database (Ensures it appears in the bell dropdown)
+      await prisma.notification.create({
+        data: {
+          userId: targetOwnerId,
+          title: 'لديكم حجز جديد',
+          message: `لديكم حجز جديد لل${toArabicItemType(validatedData.itemType)} الخاص بكم.`,
+          url: `/owner/bookings/${booking.id}`
+        },
+      });
+
+      // 2. Send Android Push (Wakes up the owner's phone)
+      sendPushNotification(
+        targetOwnerId,
+        'لديكم حجز جديد',
+        `لديكم حجز جديد لل${toArabicItemType(validatedData.itemType)} الخاص بكم.`
+      );
+    }
     res.status(201).json({ message: 'Booking created successfully', booking })
   } catch (error: any) {
     if (error instanceof z.ZodError) {
@@ -199,6 +233,27 @@ export const updateBookingStatus = async (req: AuthRequest, res: Response): Prom
       where: { id: bookingId },
       data: { status: validatedData.status },
     })
+
+    // Trigger Notification for Customers when their booking status is updated by the owner or admin
+    // We only notify if the person updating the status is NOT the customer themselves
+    if (userId !== booking.userId) {
+      // 1. Save to Database
+      await prisma.notification.create({
+        data: {
+          userId: booking.userId,
+          title: `Booking ${updatedBooking.status}`,
+          message: `Your booking status has been updated to ${updatedBooking.status}.`,
+          url: `/my-bookings`
+        },
+      });
+
+      // 2. Send Android Push (Alerts the customer that their trip is approved/rejected)
+      sendPushNotification(
+        booking.userId,
+        `${toArabicBookingStatus(updatedBooking.status)}`,
+        `تغيرت حالة حجزكم إلى: ${toArabicBookingStatus(updatedBooking.status)}.`
+      );
+    }
 
     res.status(200).json({ message: 'Booking status updated successfully', booking: updatedBooking })
   } catch (error: any) {

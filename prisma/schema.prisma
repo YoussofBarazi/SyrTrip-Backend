@@ -23,18 +23,20 @@ model User {
   name     String
   phone    String?
   role     Role    @default(CUSTOMER)
-
+  fcmToken String?
+   
   // علاقات
   hotels      Hotel[]
   carOffice   CarOffice?
   restaurants Restaurant[]
   bookings    Booking[]
+  reviews   Review[]
+  favorites Favorite[]
+  notifications Notification[]
 
   // Timestamps
   createdAt DateTime   @default(now())
   updatedAt DateTime   @updatedAt
-  reviews   Review[]
-  favorites Favorite[]
 }
 
 // 3. جدول الفنادق
@@ -290,4 +292,17 @@ model Favorite {
   @@unique([userId, carId])
   @@unique([userId, restaurantId])
   @@unique([userId, landmarkId])
+}
+
+// 11. جدول الإشعارات
+model Notification {
+  id        String   @id @default(uuid())
+  userId    String
+  title     String
+  message   String
+  url       String?
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }

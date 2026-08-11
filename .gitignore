@@ -19,3 +19,5 @@ prisma/generated/
 
 # OS files
 .DS_Store
+
+firebase-service-account.json
