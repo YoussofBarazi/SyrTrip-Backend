@@ -112,7 +112,7 @@ export const getRestaurants = async (req: AuthRequest, res: Response): Promise<v
 export const getRestaurantById = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const id = req.params.restaurantId as string;
-
+ 
     const restaurant = await prisma.restaurant.findUnique({
       where: { id },
       include: {
