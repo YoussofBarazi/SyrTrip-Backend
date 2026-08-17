@@ -111,3 +111,35 @@ export const updateMyPassword = async (req: AuthRequest, res: Response): Promise
     res.status(500).json({ message: 'Internal server error', error: error.message });
   }
 };
+
+export const getAdminUsers = async (req: AuthRequest, res: Response) => {
+  try {
+    const { name, role } = req.query;
+
+    const users = await prisma.user.findMany({
+      where: {
+        // Apply name filter if provided, using case-insensitive search
+        ...(name && typeof name === 'string' 
+            ? { name: { contains: name, mode: 'insensitive' } } 
+            : {}),
+        // Apply role filter if provided
+        ...(role && typeof role === 'string' 
+            ? { role: role.toUpperCase() as any } 
+            : {}),
+      },
+      // Only select exactly what the Admin needs to minimize payload size
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        role: true,
+        fcmToken: true,
+      },
+    });
+
+    return res.status(200).json({ users });
+  } catch (error) {
+    console.error('Error fetching users for admin:', error);
+    return res.status(500).json({ message: 'Internal server error' });
+  }
+};
