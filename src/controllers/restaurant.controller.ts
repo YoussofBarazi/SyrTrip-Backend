@@ -116,7 +116,7 @@ export const getRestaurantById = async (req: AuthRequest, res: Response): Promis
     const restaurant = await prisma.restaurant.findUnique({
       where: { id },
       include: {
-        user: {
+        owner: {
           select: { id: true, name: true, email: true, phone: true },
         },
         reviews: {
