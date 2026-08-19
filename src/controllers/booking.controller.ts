@@ -194,7 +194,7 @@ export const getOwnerBookings = async (req: AuthRequest, res: Response): Promise
     if (userRole === 'HOTEL_OWNER') {
       whereCondition.hotel = { ownerId: userId }
     } else if (userRole === 'CAR_RENTAL_OWNER') { 
-      whereCondition.car = { ownerId: userId }
+      whereCondition.car = { office: { ownerId: userId } }
     } else if (userRole === 'RESTAURANT_OWNER') {
       whereCondition.restaurant = { ownerId: userId }
     } else {
