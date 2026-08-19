@@ -317,7 +317,16 @@ export const getCar = async (req: AuthRequest, res: Response): Promise<void> => 
     const carId = req.params.carId as string
     
     const car = await prisma.car.findUnique({ 
-      where: { id: carId }
+      where: { id: carId },
+      include: {
+        reviews: {
+          take: 5,
+          orderBy: { createdAt: 'desc' },
+          include: {
+            user: { select: { id: true, name: true } },
+          },
+        },
+      },
     })
 
     if (!car) {
@@ -366,6 +375,13 @@ export const getCars = async (req: AuthRequest, res: Response): Promise<void> =>
         include: {
           office: {
             select: { id: true, name: true, phone: true },
+          },
+          reviews: {
+            take: 5,
+            orderBy: { createdAt: 'desc' },
+            include: {
+              user: { select: { id: true, name: true } },
+            },
           },
         },
       }),

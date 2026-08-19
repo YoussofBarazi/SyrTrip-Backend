@@ -88,6 +88,13 @@ export const getHotels = async (req: AuthRequest, res: Response): Promise<void> 
         include: {
           owner: {
             select: { id: true, name: true, email: true, phone: true }
+          },
+          reviews: {
+            take: 5,
+            orderBy: { createdAt: 'desc' },
+            include: {
+              user: { select: { id: true, name: true } }
+            }
           }
         }
       }),

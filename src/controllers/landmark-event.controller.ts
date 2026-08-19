@@ -56,6 +56,15 @@ export const getLandmarks = async (req: AuthRequest, res: Response): Promise<voi
         skip,
         take: limit,
         orderBy: { createdAt: 'desc' },
+        include: {
+          reviews: {
+            take: 5,
+            orderBy: { createdAt: 'desc' },
+            include: {
+              user: { select: { id: true, name: true } },
+            },
+          },
+        },
       }),
       prisma.landmark.count({ where: whereCondition }),
     ]);

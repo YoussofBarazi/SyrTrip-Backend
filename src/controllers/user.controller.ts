@@ -20,6 +20,10 @@ export const getMyProfile = async (req: AuthRequest, res: Response): Promise<voi
         phone: true,
         role: true,
         createdAt: true,
+        reviews: {
+          take: 5,
+          orderBy: { createdAt: 'desc' },
+        },
       },
     });
 
@@ -134,6 +138,10 @@ export const getAdminUsers = async (req: AuthRequest, res: Response) => {
         email: true,
         role: true,
         fcmToken: true,
+        reviews: {
+          take: 5,
+          orderBy: { createdAt: 'desc' },
+        },
       },
     });
 

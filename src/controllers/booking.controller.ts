@@ -142,9 +142,39 @@ export const getMyBookings = async (req: AuthRequest, res: Response): Promise<vo
     const bookings = await prisma.booking.findMany({
       where: { userId },
       include: {
-        hotel: true,
-        car: true,
-        restaurant: true,
+        hotel: {
+          include: {
+            reviews: {
+              take: 5,
+              orderBy: { createdAt: 'desc' },
+              include: {
+                user: { select: { id: true, name: true } },
+              },
+            },
+          },
+        },
+        car: {
+          include: {
+            reviews: {
+              take: 5,
+              orderBy: { createdAt: 'desc' },
+              include: {
+                user: { select: { id: true, name: true } },
+              },
+            },
+          },
+        },
+        restaurant: {
+          include: {
+            reviews: {
+              take: 5,
+              orderBy: { createdAt: 'desc' },
+              include: {
+                user: { select: { id: true, name: true } },
+              },
+            },
+          },
+        },
       },
     })
     res.status(200).json({ bookings })
@@ -176,9 +206,40 @@ export const getOwnerBookings = async (req: AuthRequest, res: Response): Promise
       where: whereCondition,
       include: {
         user: true,
-        hotel: true,
-        car: { include: { office: true }},
-        restaurant: true,
+        hotel: {
+          include: {
+            reviews: {
+              take: 5,
+              orderBy: { createdAt: 'desc' },
+              include: {
+                user: { select: { id: true, name: true } },
+              },
+            },
+          },
+        },
+        car: {
+          include: {
+            office: true,
+            reviews: {
+              take: 5,
+              orderBy: { createdAt: 'desc' },
+              include: {
+                user: { select: { id: true, name: true } },
+              },
+            },
+          },
+        },
+        restaurant: {
+          include: {
+            reviews: {
+              take: 5,
+              orderBy: { createdAt: 'desc' },
+              include: {
+                user: { select: { id: true, name: true } },
+              },
+            },
+          },
+        },
       },
     })
 

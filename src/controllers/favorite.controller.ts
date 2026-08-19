@@ -49,10 +49,50 @@ export const getMyFavorites = async (req: AuthRequest, res: Response): Promise<v
       where: { userId },
       orderBy: { createdAt: 'desc' },
       include: {
-        hotel: true,
-        car: true,
-        restaurant: true,
-        landmark: true,
+        hotel: {
+          include: {
+            reviews: {
+              take: 5,
+              orderBy: { createdAt: 'desc' },
+              include: {
+                user: { select: { id: true, name: true } },
+              },
+            },
+          },
+        },
+        car: {
+          include: {
+            reviews: {
+              take: 5,
+              orderBy: { createdAt: 'desc' },
+              include: {
+                user: { select: { id: true, name: true } },
+              },
+            },
+          },
+        },
+        restaurant: {
+          include: {
+            reviews: {
+              take: 5,
+              orderBy: { createdAt: 'desc' },
+              include: {
+                user: { select: { id: true, name: true } },
+              },
+            },
+          },
+        },
+        landmark: {
+          include: {
+            reviews: {
+              take: 5,
+              orderBy: { createdAt: 'desc' },
+              include: {
+                user: { select: { id: true, name: true } },
+              },
+            },
+          },
+        },
         event: true,
       },
     });
