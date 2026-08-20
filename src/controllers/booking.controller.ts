@@ -197,6 +197,8 @@ export const getOwnerBookings = async (req: AuthRequest, res: Response): Promise
       whereCondition.car = { office: { ownerId: userId } }
     } else if (userRole === 'RESTAURANT_OWNER') {
       whereCondition.restaurant = { ownerId: userId }
+    } else if (userRole === 'ADMIN') {
+      // Admin can view all bookings
     } else {
       res.status(403).json({ message: 'Unauthorized' })
       return
