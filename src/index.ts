@@ -15,7 +15,7 @@ import notificationRoutes from './routes/notification.route.js';
 const app = express();
 
 app.use((req, res, next) => {
-  const allowedOrigins = ['http://localhost:5173', 'http://localhost:3000'];
+  const allowedOrigins = ['http://localhost:5173', 'http://localhost:3000', 'https://syr-trip-dashboard.vercel.app'];
   const origin = req.headers.origin;
 
   if (origin && allowedOrigins.includes(origin)) {
